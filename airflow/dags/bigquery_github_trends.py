@@ -1,13 +1,12 @@
-import json
 from datetime import timedelta, datetime
 
 from airflow import DAG
-from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 from airflow.contrib.operators.bigquery_check_operator import BigQueryCheckOperator
+from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 
 default_args = {
     'owner': 'airflow',
-    'depends_on_past': True,    
+    'depends_on_past': True,
     'start_date': datetime(2018, 12, 1),
     'end_date': datetime(2018, 12, 5),
     'email': ['airflow@airflow.com'],
@@ -23,22 +22,23 @@ schedule_interval = "00 21 * * *"
 
 # Define DAG: Set ID and assign default args and schedule interval
 dag = DAG(
-    'bigquery_github_trends', 
-    default_args=default_args, 
+    'bigquery_github_trends',
+    default_args=default_args,
     schedule_interval=schedule_interval
-    )
+)
 
 # Config variables
 BQ_CONN_ID = "my_gcp_conn"
 BQ_PROJECT = "my-bq-project"
 BQ_DATASET = "my-bq-dataset"
 
-## Task 1: check that the github archive data has a dated table created for that date
+# Task 1: check that the github archive data has a dated table created for that date
 # To test this task, run this command:
-# docker-compose -f docker-compose-gcloud.yml run --rm webserver airflow test bigquery_github_trends bq_check_githubarchive_day 2018-12-01
+# docker-compose -f docker-compose-gcloud.yml
+#   run --rm webserver airflow test bigquery_github_trends bq_check_githubarchive_day 2018-12-01
 t1 = BigQueryCheckOperator(
-        task_id='bq_check_githubarchive_day',
-        sql='''
+    task_id='bq_check_githubarchive_day',
+    sql='''
         #standardSQL
         SELECT
           table_id
@@ -47,15 +47,15 @@ t1 = BigQueryCheckOperator(
         WHERE
           table_id = "{{ yesterday_ds_nodash }}"
         ''',
-        use_legacy_sql=False,
-        bigquery_conn_id=BQ_CONN_ID,
-        dag=dag
-    )
+    use_legacy_sql=False,
+    bigquery_conn_id=BQ_CONN_ID,
+    dag=dag
+)
 
-## Task 2: check that the hacker news table contains data for that date.
+# Task 2: check that the hacker news table contains data for that date.
 t2 = BigQueryCheckOperator(
-        task_id='bq_check_hackernews_full',
-        sql='''
+    task_id='bq_check_hackernews_full',
+    sql='''
         #standardSQL
         SELECT
           FORMAT_TIMESTAMP("%Y%m%d", timestamp ) AS date
@@ -67,15 +67,15 @@ t2 = BigQueryCheckOperator(
         LIMIT
           1
         ''',
-        use_legacy_sql=False,
-        bigquery_conn_id=BQ_CONN_ID,
-        dag=dag
-    )
+    use_legacy_sql=False,
+    bigquery_conn_id=BQ_CONN_ID,
+    dag=dag
+)
 
-## Task 3: create a github daily metrics partition table
+# Task 3: create a github daily metrics partition table
 t3 = BigQueryOperator(
-        task_id='bq_write_to_github_daily_metrics',    
-        sql='''
+    task_id='bq_write_to_github_daily_metrics',
+    sql='''
         #standardSQL
         SELECT
           date,
@@ -96,20 +96,20 @@ t3 = BigQueryOperator(
           date,
           repo
         ''',
-        destination_dataset_table='{0}.{1}.github_daily_metrics${2}'.format(
-            BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds_nodash }}'
-        ),    
-        write_disposition='WRITE_TRUNCATE',
-        allow_large_results=True,
-        use_legacy_sql=False,
-        bigquery_conn_id=BQ_CONN_ID,
-        dag=dag
-    )
+    destination_dataset_table='{0}.{1}.github_daily_metrics${2}'.format(
+        BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds_nodash }}'
+    ),
+    write_disposition='WRITE_TRUNCATE',
+    allow_large_results=True,
+    use_legacy_sql=False,
+    bigquery_conn_id=BQ_CONN_ID,
+    dag=dag
+)
 
-## Task 4: aggregate past github events to daily partition table
+# Task 4: aggregate past github events to daily partition table
 t4 = BigQueryOperator(
-        task_id='bq_write_to_github_agg',    
-        sql='''
+    task_id='bq_write_to_github_agg',
+    sql='''
         #standardSQL
         SELECT
           "{2}" as date,
@@ -136,24 +136,23 @@ t4 = BigQueryOperator(
           date,
           repo
         '''.format(BQ_PROJECT, BQ_DATASET,
-            "{{ yesterday_ds_nodash }}", "{{ yesterday_ds }}",
-            "{{ macros.ds_add(ds, -6) }}",
-            "{{ macros.ds_add(ds, -27) }}"
-            )
-        ,
-        destination_dataset_table='{0}.{1}.github_agg${2}'.format(
-            BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds_nodash }}'
-        ),
-        write_disposition='WRITE_TRUNCATE',
-        allow_large_results=True,
-        use_legacy_sql=False,
-        bigquery_conn_id=BQ_CONN_ID,
-        dag=dag
-    )
+                   "{{ yesterday_ds_nodash }}", "{{ yesterday_ds }}",
+                   "{{ macros.ds_add(ds, -6) }}",
+                   "{{ macros.ds_add(ds, -27) }}"
+                   ),
+    destination_dataset_table='{0}.{1}.github_agg${2}'.format(
+        BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds_nodash }}'
+    ),
+    write_disposition='WRITE_TRUNCATE',
+    allow_large_results=True,
+    use_legacy_sql=False,
+    bigquery_conn_id=BQ_CONN_ID,
+    dag=dag
+)
 
 # Task 5: aggregate hacker news data to a daily partition table
 t5 = BigQueryOperator(
-    task_id='bq_write_to_hackernews_agg',    
+    task_id='bq_write_to_hackernews_agg',
     sql='''
     #standardSQL
     SELECT
@@ -184,11 +183,11 @@ t5 = BigQueryOperator(
     use_legacy_sql=False,
     bigquery_conn_id=BQ_CONN_ID,
     dag=dag
-    )
+)
 
 # Task 6: join the aggregate tables
 t6 = BigQueryOperator(
-    task_id='bq_write_to_hackernews_github_agg',    
+    task_id='bq_write_to_hackernews_github_agg',
     sql='''
     #standardSQL
     SELECT 
@@ -227,8 +226,8 @@ t6 = BigQueryOperator(
       ) as b
     ON a.url = b.url
     '''.format(
-            BQ_PROJECT, BQ_DATASET, "{{ yesterday_ds }}"
-        ),
+        BQ_PROJECT, BQ_DATASET, "{{ yesterday_ds }}"
+    ),
     destination_dataset_table='{0}.{1}.hackernews_github_agg${2}'.format(
         BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds_nodash }}'
     ),
@@ -237,7 +236,7 @@ t6 = BigQueryOperator(
     use_legacy_sql=False,
     bigquery_conn_id=BQ_CONN_ID,
     dag=dag
-    )
+)
 
 # Task 7: Check if partition data is written successfully
 t7 = BigQueryCheckOperator(
@@ -249,7 +248,7 @@ t7 = BigQueryCheckOperator(
     FROM `{0}.{1}.hackernews_github_agg`    
     WHERE _PARTITIONDATE = "{2}"
     '''.format(BQ_PROJECT, BQ_DATASET, '{{ yesterday_ds }}'
-        ),
+               ),
     use_legacy_sql=False,
     bigquery_conn_id=BQ_CONN_ID,
     dag=dag)

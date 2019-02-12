@@ -27,6 +27,7 @@ from datetime import timedelta
 import airflow
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
+from airflow.utils import dates
 
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization

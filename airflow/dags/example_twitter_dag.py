@@ -33,6 +33,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.hive_operator import HiveOperator
 from datetime import date, timedelta
+from airflow.utils import dates
 
 # --------------------------------------------------------------------------------
 # Create a few placeholder scripts. In practice these would be different python
