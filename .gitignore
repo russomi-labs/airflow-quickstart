@@ -180,3 +180,5 @@ fabric.properties
 .idea/httpRequests
 
 !/scripts/
+
+*.iml
