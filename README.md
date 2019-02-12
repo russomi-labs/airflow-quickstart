@@ -14,8 +14,8 @@ practices for Airflow.
 ### Install Airflow on Host System
 
 ```bash
-pip2 install "apache-airflow[s3, postgres, gcp_api]"
-
+export SLUGIFY_USES_TEXT_UNIDECODE=yes
+pip2 install -r requirements-dev.txt
 ```
 
 ### Run Airflow with Docker
