@@ -34,7 +34,8 @@ tutorial for additional details.
 Run the web service with docker
 
 ```bash
-# See https://docs.docker.com/compose/reference/envvars
+# See https://docs.docker.com/compose/reference/envvars and
+# https://docs.docker.com/compose/compose-file/#variable-substitution
 export COMPOSE_FILE=docker-compose-LocalExecutor.yml
 
 docker-compose up -d
@@ -57,7 +58,8 @@ If you want to run other airflow sub-commands, you can do so like this:
 * `docker-compose run --rm webserver airflow test [DAG_ID] [TASK_ID] [EXECUTION_DATE]` - Test specific task
 
 ```bash
-# See https://docs.docker.com/compose/reference/envvars
+# See https://docs.docker.com/compose/reference/envvars and
+# https://docs.docker.com/compose/compose-file/#variable-substitution
 export COMPOSE_FILE=docker-compose-LocalExecutor.yml
 
 # List dags
