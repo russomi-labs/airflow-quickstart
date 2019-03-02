@@ -9,27 +9,28 @@
 [ETL best practices with Airflow](https://gtoonstra.github.io/etl-with-airflow/index.html) is an excellent guide on best
 practices for Airflow.
 
-[etl-example](https://gtoonstra.github.io/etl-with-airflow/etlexample.html#etl-example)
+- [etl-example](https://gtoonstra.github.io/etl-with-airflow/etlexample.html#etl-example)
+- ...
 
-### Install Airflow on Host System
+### Option 1: Install Airflow on Host System
 
 ```bash
 export SLUGIFY_USES_TEXT_UNIDECODE=yes
 pip2 install -r requirements-dev.txt
 ```
 
-### Run Airflow with Docker
+### Option 2: Run Airflow with Docker
 
 See the [Run Airflow from Docker](https://gtoonstra.github.io/etl-with-airflow/etlexample.html#run-airflow-from-docker) 
 tutorial for additional details. 
 
-### Prerequisites
+#### Prerequisites
 
 - Install [Docker](https://www.docker.com/)
 - Install [Docker Compose](https://docs.docker.com/compose/install/)
 - Following the Airflow release from [Python Package Index](https://pypi.python.org/pypi/apache-airflow)
 
-### Usage
+#### Usage
 
 Run the web service with docker
 
@@ -50,7 +51,7 @@ Check http://localhost:8080/
 - `docker-compose ps` - List containers
 - `docker-compose down` - Stop containers
 
-## Other commands
+#### Other commands
 
 If you want to run other airflow sub-commands, you can do so like this:
 
@@ -79,7 +80,24 @@ docker-compose run \
 
 ```
 
-## docker-compose usage
+Other `docker-compose` examples:
+
+```bash
+
+docker-compose -f docker-compose-LocalExecutor.yml up --abort-on-container-exit
+docker-compose -f docker-compose-LocalExecutor.yml down
+docker-compose -f docker-compose-LocalExecutor.yml up -d
+
+# list dags by running the webserver container and using the airflow cli
+docker-compose run --rm webserver airflow list_dags
+
+# unpause init_docker_example
+
+
+```
+
+
+#### docker-compose usage
 
 For example:
 
@@ -119,7 +137,7 @@ Options:
 
 
 
-## Connect to database
+#### Connect to database
 
 If you want to use Ad hoc query, make sure you've configured connections:
 Go to Admin -> Connections and Edit "postgres_default" set this values:
@@ -134,19 +152,6 @@ Go to Admin -> Connections and Edit "postgres_default" set this values:
 - [Apache Airflow](https://github.com/apache/incubator-airflow)
 - [docker-airflow](https://github.com/puckel/docker-airflow)
 
-```bash
-
-docker-compose -f docker-compose-LocalExecutor.yml up --abort-on-container-exit
-docker-compose -f docker-compose-LocalExecutor.yml down
-docker-compose -f docker-compose-LocalExecutor.yml up -d
-
-# list dags by running the webserver container and using the airflow cli
-docker-compose run --rm webserver airflow list_dags
-
-# unpause init_docker_example
-
-
-```
 
 ## Resources
 
@@ -193,7 +198,7 @@ gcloud composer environments run $ENVIRONMENT_NAME \
 
 ---
 
-Airflow tutorial
+Airflow tutorial (Original)
 ---
 
 This is the code for [Airflow-tutorial](https://www.youtube.com/playlist?list=PLYizQ5FvN6pvIOcOd6dFZu3lQqc6zBGp2) playlist by Tuan Vu on Youtube
