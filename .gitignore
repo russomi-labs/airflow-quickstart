@@ -113,7 +113,7 @@ venv.bak/
 [Ll]ib
 [Ll]ib64
 [Ll]ocal
-[Ss]cripts
+# [Ss]cripts
 pyvenv.cfg
 .venv
 pip-selfcheck.json
@@ -178,8 +178,6 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
-
-!/scripts/
 
 *.iml
 .idea/encodings.xml
