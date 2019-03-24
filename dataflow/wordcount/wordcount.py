@@ -45,7 +45,7 @@ class WordExtractingDoFn(beam.DoFn):
         self.empty_line_counter = Metrics.counter(self.__class__,
                                                   'empty_lines')
 
-    def process(self, element):
+    def process(self, element, **kwargs):
         """Returns an iterator over the words of this element.
     
         The element is a line of text.  If the line is blank, note that, too.
@@ -55,6 +55,7 @@ class WordExtractingDoFn(beam.DoFn):
     
         Returns:
           The processed element.
+          :param element: 
         """
         text_line = element.strip()
         if not text_line:
@@ -94,7 +95,7 @@ def run(argv=None):
     # Count the occurrences of each word.
     def count_ones(word_ones):
         (word, ones) = word_ones
-        return (word, sum(ones))
+        return word, sum(ones)
 
     counts = (
         lines

@@ -388,6 +388,7 @@ python -m apache_beam.examples.wordcount --input /path/to/inputfile --output /pa
 ```
 # As part of the initial setup, install Google Cloud Platform specific extra components. Make sure you
 # complete the setup steps at {{ site.baseurl }}/documentation/runners/dataflow/#setup
+
 pip install apache-beam[gcp]
 python -m apache_beam.examples.wordcount --input gs://dataflow-samples/shakespeare/kinglear.txt \
                                          --output gs://<your-gcs-bucket>/counts \
